@@ -63,7 +63,7 @@
 <meta property="og:site_name" content="小兵的博客">
 <meta property="og:description" content="Pulsar 源码阅读： Retention对于已经消费确认的消息，Pulsar 可以通过配置 Retention 策略决定保留的时间及大小。 具体参见官方文档：Message retention and expiry Pulsar 源码中有三个部分与 Retention 相关。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-12T13:44:51.700Z">
+<meta property="og:updated_time" content="2019-08-13T03:08:00.170Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Pulsar 源码阅读： Retention">
 <meta name="twitter:description" content="Pulsar 源码阅读： Retention对于已经消费确认的消息，Pulsar 可以通过配置 Retention 策略决定保留的时间及大小。 具体参见官方文档：Message retention and expiry Pulsar 源码中有三个部分与 Retention 相关。">
@@ -198,7 +198,7 @@
       
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">0</span></a>
+    <a href="/Categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">2</span></a>
 
   </li>
       
@@ -285,7 +285,7 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="fxbing">
-      <meta itemprop="description" content="简单记录一些笔记和随想">
+      <meta itemprop="description" content="既然生活这么苦，那还不让自己开心一点。">
       <meta itemprop="image" content="/uploads/avatar.jpg">
     </span>
 
@@ -323,9 +323,22 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-08-12 21:44:51" itemprop="dateModified" datetime="2019-08-12T21:44:51+08:00">2019-08-12</time>
+                <time title="修改时间：2019-08-13 11:08:00" itemprop="dateModified" datetime="2019-08-13T11:08:00+08:00">2019-08-13</time>
               </span>
             
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -457,6 +470,9 @@
 
           </div>
           
+    
+    <div class="comments" id="gitalk-container"></div>
+  
 
         </div>
           
@@ -489,7 +505,7 @@
       src="/uploads/avatar.jpg"
       alt="fxbing">
   <p class="site-author-name" itemprop="name">fxbing</p>
-  <div class="site-description motion-element" itemprop="description">简单记录一些笔记和随想</div>
+  <div class="site-description motion-element" itemprop="description">既然生活这么苦，那还不让自己开心一点。</div>
 </div>
   <nav class="site-state motion-element">
       <div class="site-state-item site-state-posts">
@@ -498,6 +514,25 @@
         
           <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/Categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span>
         </a>
       </div>
     
@@ -679,6 +714,26 @@
   <script src="/js/scrollspy.js?v=7.3.0"></script>
 <script src="/js/post-details.js?v=7.3.0"></script>
 
+
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', function() {
+    var gitalk = new Gitalk({
+      clientID: '2fa5bf7e74807f1d796b',
+      clientSecret: '2239938ff967e44b65031fb43b9d84c338ebfb6d',
+      repo: 'fxbing.github.io',
+      owner: 'fxbing',
+      admin: ['fxbing'],
+      id: 'c53e72cbc65af6486a8ff3e3b7ba0912',
+        language: 'zh-CN',
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
 
 </body>
 </html>

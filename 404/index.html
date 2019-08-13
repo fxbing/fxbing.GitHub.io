@@ -195,7 +195,7 @@
       
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">0</span></a>
+    <a href="/Categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">2</span></a>
 
   </li>
       
@@ -335,6 +335,9 @@
 
           </div>
           
+    
+    <div class="comments" id="gitalk-container"></div>
+  
 
         </div>
           
@@ -358,7 +361,7 @@
       src="/uploads/avatar.jpg"
       alt="fxbing">
   <p class="site-author-name" itemprop="name">fxbing</p>
-  <div class="site-description motion-element" itemprop="description">简单记录一些笔记和随想</div>
+  <div class="site-description motion-element" itemprop="description">既然生活这么苦，那还不让自己开心一点。</div>
 </div>
   <nav class="site-state motion-element">
       <div class="site-state-item site-state-posts">
@@ -367,6 +370,25 @@
         
           <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/Categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span>
         </a>
       </div>
     
@@ -532,6 +554,26 @@
 <script src="/js/post-details.js?v=7.3.0"></script>
 
   
+
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', function() {
+    var gitalk = new Gitalk({
+      clientID: '2fa5bf7e74807f1d796b',
+      clientSecret: '2239938ff967e44b65031fb43b9d84c338ebfb6d',
+      repo: 'fxbing.github.io',
+      owner: 'fxbing',
+      admin: ['fxbing'],
+      id: '4c9b0f983ae256a9d61fcacf2b0f71a3',
+        language: 'zh-CN',
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
 
 </body>
 </html>
