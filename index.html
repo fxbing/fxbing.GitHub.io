@@ -337,7 +337,7 @@
               
                 <span class="post-meta-item-text">本文字数：</span>
               
-              <span>7.3k</span>
+              <span>7.4k</span>
             </span>
           
             <span class="post-meta-item" title="阅读时长">
@@ -360,13 +360,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="CompletableFuture-总结"><a href="#CompletableFuture-总结" class="headerlink" title="CompletableFuture 总结"></a>CompletableFuture 总结</h1><p><code>CompletableFuture</code> 是Java8 中新增的用来进行函数式异步编程的工具类。</p>
-<p>最近学习源码的过程中看到有很多 <code>CompletableFuture</code> 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：</p>
-<p><a href="https://colobu.com/2016/02/29/Java-CompletableFuture/" target="_blank" rel="noopener">Java CompletableFuture 详解</a></p>
-<p><a href="https://juejin.im/post/59eae61b51882549fc512b34" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(一)</a></p>
-<p><a href="https://juejin.im/post/59eae6e4f265da430e4e4cb5" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(二)</a></p>
-<p><a href="https://juejin.im/post/59eae6e4f265da430e4e4cb5" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(三)</a></p>
-<p>上面的博客介绍的比较详细，为了自己查阅回看的方便，这里对这些方法进行一下总结（这里只总结不举例，具体使用需要看上面的博客）。</p>
+          <h1>CompletableFuture 总结</h1><p><code>CompletableFuture</code> 是Java8 中新增的用来进行函数式异步编程的工具类。</p><p>最近学习源码的过程中看到有很多 <code>CompletableFuture</code> 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：</p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -494,15 +488,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Pulsar-源码阅读：-BacklogQuota"><a href="#Pulsar-源码阅读：-BacklogQuota" class="headerlink" title="Pulsar 源码阅读： BacklogQuota"></a>Pulsar 源码阅读： BacklogQuota</h1><p>对于<del>已经消费但是</del>没有确认的消息，Pulsar 可以通过配置 BacklogQuota 决定保留大小及丢弃策略。</p>
-<p>具体参见官方文档：<a href="https://pulsar.apache.org/docs/zh-CN/cookbooks-retention-expiry/#docsNav" target="_blank" rel="noopener">Message retention and expiry</a></p>
-<p>当 Backlog 大小未达到限额时，不需要处理，当 Backlog 大小超限时，根据丢弃策略进行处理。</p>
-<p>BacklogQuota 的丢弃策略一共有三种：</p>
-<ol>
-<li><code>producer_request_hold</code>：① 断开所有的 Producer ② 在新建 Producer 时进行检查，如果超出 BacklogQuota，则拒绝新建请求并等待超时（异步返回结果调用<code>get()</code>时才抛出异常）</li>
-<li><code>producer_exception</code>：① 断开所有的 Producer ② 在新建 Producer 时进行检查，如果超出 BacklogQuota，则拒绝新建请求并抛出异常</li>
-<li><code>consumer_backlog_eviction</code>：丢弃最早的 Backlog</li>
-</ol>
+          <h1>Pulsar 源码阅读： BacklogQuota</h1><p>对于<s>已经消费但是</s>没有确认的消息，Pulsar 可以通过配置 BacklogQuota 决定保留大小及丢弃策略。</p><p>具体参见官方文档：<a href="https://pulsar.apache.org/docs/zh-CN/cookbooks-retention-expiry/#docsNav" target="_blank" rel="noopener">Message retention and expiry</a></p><p>当 Backlog 大小未达到限额时，不需要处理，当 Backlog 大小超限时，根据丢弃策略进行处理。</p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -618,7 +604,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="《深入理解Java虚拟机》笔记"><a href="#《深入理解Java虚拟机》笔记" class="headerlink" title="《深入理解Java虚拟机》笔记"></a>《深入理解Java虚拟机》笔记</h1><p>阅读了《深入理解Java虚拟机》的部分章节，并做了一些简单的笔记，不是很详细，但是可以方便自己查阅。</p>
+          <h1>《深入理解Java虚拟机》笔记</h1><p>阅读了《深入理解Java虚拟机》的部分章节，并做了一些简单的笔记，不是很详细，但是可以方便自己查阅。</p><p>&lt;!-- more --&gt;</p><h2>第三章 垃圾收集器与内存分配策略</h2><h3>1. 对象是否存活</h3><h4>引用计数法：</h4><p>很难解决对象间的循环引用</p><h4>可达性分析</h4><h5>可以作为GC Roots的对象：</h5><ul>
+<li>虚拟机栈中引用的对象</li>
+<li>方法区中类静态属性引用的对象</li>
+<li>方法区中常量引用的对象</li>
+<li>本地方法栈中JNI（Native方法）引用的对象</li>
+</ul>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -734,9 +725,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Pulsar-源码阅读：-Retention"><a href="#Pulsar-源码阅读：-Retention" class="headerlink" title="Pulsar 源码阅读： Retention"></a>Pulsar 源码阅读： Retention</h1><p>对于已经消费确认的消息，Pulsar 可以通过配置 Retention 策略决定保留的时间及大小。</p>
-<p>具体参见官方文档：<a href="https://pulsar.apache.org/docs/zh-CN/cookbooks-retention-expiry/#docsNav" target="_blank" rel="noopener">Message retention and expiry</a></p>
-<p>Pulsar 源码中有三个部分与 Retention 相关。</p>
+          <h1>Pulsar 源码阅读： Retention</h1><p>对于已经消费确认的消息，Pulsar 可以通过配置 Retention 策略决定保留的时间及大小。</p><p>具体参见官方文档：<a href="https://pulsar.apache.org/docs/zh-CN/cookbooks-retention-expiry/#docsNav" target="_blank" rel="noopener">Message retention and expiry</a></p><p>Pulsar 源码中有三个部分与 Retention 相关。</p><p>&lt;!-- more --&gt;</p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -829,7 +818,7 @@
               
                 <span class="post-meta-item-text">本文字数：</span>
               
-              <span>79</span>
+              <span>80</span>
             </span>
           
             <span class="post-meta-item" title="阅读时长">
@@ -853,7 +842,8 @@
 
       
           
-            <h1 id="开门啦"><a href="#开门啦" class="headerlink" title="开门啦"></a>开门啦</h1><blockquote>
+            <h1>开门啦</h1>
+<blockquote>
 <p>万事开头难</p>
 </blockquote>
 <p>我的博客终于开通了，之后会在这里写一些东西，可能是一些想法，可能是一些笔记，也可能是一些技术文章，总之，希望我的博客可以发展起来！！！</p>
@@ -1039,6 +1029,9 @@
   </div>
 
   
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
   <script src="/lib/jquery/index.js?v=3.4.1"></script>
   <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
   <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>

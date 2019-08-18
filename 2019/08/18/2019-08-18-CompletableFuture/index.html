@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。 最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）： Java CompletableFuture 详解 Java8新的">
+  <meta name="description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CompletableFuture 总结">
 <meta property="og:url" content="http://fxbing.github.io/2019/08/18/2019-08-18-CompletableFuture/index.html">
 <meta property="og:site_name" content="小兵的博客">
-<meta property="og:description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。 最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）： Java CompletableFuture 详解 Java8新的">
+<meta property="og:description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2019-08-17T16:00:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CompletableFuture 总结">
-<meta name="twitter:description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。 最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）： Java CompletableFuture 详解 Java8新的">
+<meta name="twitter:description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：">
   <link rel="canonical" href="http://fxbing.github.io/2019/08/18/2019-08-18-CompletableFuture/">
 
 
@@ -338,7 +338,7 @@
               
                 <span class="post-meta-item-text">本文字数：</span>
               
-              <span>7.3k</span>
+              <span>7.4k</span>
             </span>
           
             <span class="post-meta-item" title="阅读时长">
@@ -361,38 +361,46 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="CompletableFuture-总结"><a href="#CompletableFuture-总结" class="headerlink" title="CompletableFuture 总结"></a>CompletableFuture 总结</h1><p><code>CompletableFuture</code> 是Java8 中新增的用来进行函数式异步编程的工具类。</p>
-<p>最近学习源码的过程中看到有很多 <code>CompletableFuture</code> 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：</p>
+        <h1>CompletableFuture 总结</h1><p><code>CompletableFuture</code> 是Java8 中新增的用来进行函数式异步编程的工具类。</p><p>最近学习源码的过程中看到有很多 <code>CompletableFuture</code> 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：</p><a id="more"></a>
+
+
 <p><a href="https://colobu.com/2016/02/29/Java-CompletableFuture/" target="_blank" rel="noopener">Java CompletableFuture 详解</a></p>
 <p><a href="https://juejin.im/post/59eae61b51882549fc512b34" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(一)</a></p>
 <p><a href="https://juejin.im/post/59eae6e4f265da430e4e4cb5" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(二)</a></p>
 <p><a href="https://juejin.im/post/59eae6e4f265da430e4e4cb5" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(三)</a></p>
 <p>上面的博客介绍的比较详细，为了自己查阅回看的方便，这里对这些方法进行一下总结（这里只总结不举例，具体使用需要看上面的博客）。</p>
-<a id="more"></a>
-
-
-<h2 id="Future接口"><a href="#Future接口" class="headerlink" title="Future接口"></a>Future接口</h2><p><code>Feture</code> 接口包含五个方法，介绍如下：</p>
+<p>&lt;!-- more --&gt;</p>
+<h2>Future接口</h2>
+<p><code>Feture</code> 接口包含五个方法，介绍如下：</p>
 <ul>
-<li><p><code>boolean cancel (boolean mayInterruptIfRunning)</code> 取消任务的执行。参数指定是否立即中断任务执行，或者等等任务结束</p>
+<li>
+<p><code>boolean cancel (boolean mayInterruptIfRunning)</code> 取消任务的执行。参数指定是否立即中断任务执行，或者等等任务结束</p>
 </li>
-<li><p><code>boolean isCancelled ()</code> 任务是否已经取消，任务正常完成前将其取消，则返回 <code>true</code></p>
+<li>
+<p><code>boolean isCancelled ()</code> 任务是否已经取消，任务正常完成前将其取消，则返回 <code>true</code></p>
 </li>
-<li><p><code>boolean isDone ()</code> 任务是否已经完成。需要注意的是如果任务正常终止、异常或取消，都将返回<code>true</code></p>
+<li>
+<p><code>boolean isDone ()</code> 任务是否已经完成。需要注意的是如果任务正常终止、异常或取消，都将返回<code>true</code></p>
 </li>
-<li><p><code>V get () throws InterruptedException, ExecutionException</code>  等待任务执行结束，然后获得V类型的结果。InterruptedException 线程被中断异常， ExecutionException任务执行异常，如果任务被取消，还会抛出CancellationException</p>
+<li>
+<p><code>V get () throws InterruptedException, ExecutionException</code>  等待任务执行结束，然后获得V类型的结果。InterruptedException 线程被中断异常， ExecutionException任务执行异常，如果任务被取消，还会抛出CancellationException</p>
 </li>
-<li><p><code>V get (long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException</code>同上面的get功能一样，多了设置超时时间。参数timeout指定超时时间，uint指定时间的单位，在枚举类TimeUnit中有相关的定义。如果计 算超时，将抛出TimeoutException</p>
+<li>
+<p><code>V get (long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException</code>同上面的get功能一样，多了设置超时时间。参数timeout指定超时时间，uint指定时间的单位，在枚举类TimeUnit中有相关的定义。如果计 算超时，将抛出TimeoutException</p>
 </li>
 </ul>
-<h2 id="主动完成计算"><a href="#主动完成计算" class="headerlink" title="主动完成计算"></a>主动完成计算</h2><p><code>CompletableFuture</code>实现了<code>CompletionStage</code>和<code>Future</code>两个接口。</p>
-<h4 id="通过阻塞或者轮询获得结果"><a href="#通过阻塞或者轮询获得结果" class="headerlink" title="通过阻塞或者轮询获得结果"></a>通过阻塞或者轮询获得结果</h4><table>
+<h2>主动完成计算</h2>
+<p><code>CompletableFuture</code>实现了<code>CompletionStage</code>和<code>Future</code>两个接口。</p>
+<h4>通过阻塞或者轮询获得结果</h4>
+<table>
 <thead>
 <tr>
 <th>方法名</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>public T get()</code></td>
 <td><code>Future</code>接口实现</td>
 </tr>
@@ -408,17 +416,22 @@
 <td><code>public T join()</code></td>
 <td>返回计算的结果或者抛出一个unchecked异常(CompletionException)</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p><code>join()</code>和<code>get()</code>的区别是，<code>join()</code>只会抛出<strong>未检查异常</strong>（不需要使用<code>try...catch..</code>进行处理），而<code>get()</code>会抛出<strong>检查异常</strong>。</p>
 </blockquote>
-<h4 id="异步获取结果"><a href="#异步获取结果" class="headerlink" title="异步获取结果"></a>异步获取结果</h4><blockquote>
+<h4>异步获取结果</h4>
+<blockquote>
 <ul>
-<li><p>下面两个函数的调用会立即执行，并且只能执行一次。</p>
+<li>
+<p>下面两个函数的调用会立即执行，并且只能执行一次。</p>
 </li>
-<li><p>如果该任务已经执行完成，那么下面两个调用会无效，只能获取执行完成的结果。其实就是使任务立即结束（返回指定结果或者指定抛出异常）。</p>
+<li>
+<p>如果该任务已经执行完成，那么下面两个调用会无效，只能获取执行完成的结果。其实就是使任务立即结束（返回指定结果或者指定抛出异常）。</p>
 </li>
-<li><p>比较适合需要返回<code>CompletableFuture</code>的方法，先创建一个空的<code>CompletableFuture</code>，之后通过下面两个函数指定前面创建的<code>CompletableFuture</code>的返回值。</p>
+<li>
+<p>比较适合需要返回<code>CompletableFuture</code>的方法，先创建一个空的<code>CompletableFuture</code>，之后通过下面两个函数指定前面创建的<code>CompletableFuture</code>的返回值。</p>
 </li>
 </ul>
 </blockquote>
@@ -429,7 +442,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>complete(T t)</code></td>
 <td>完成异步执行，并返回future的结果</td>
 </tr>
@@ -437,8 +451,10 @@
 <td><code>completeExceptionally(Throwable ex)</code></td>
 <td>异步执行不正常的结束</td>
 </tr>
-</tbody></table>
-<h2 id="静态工厂方法"><a href="#静态工厂方法" class="headerlink" title="静态工厂方法"></a>静态工厂方法</h2><blockquote>
+</tbody>
+</table>
+<h2>静态工厂方法</h2>
+<blockquote>
 <p>run 和 supply 的主要区别是异步操作是否有返回值（下面列出的所有方法也基本都是按照<strong>是否有返回值</strong>分为两类）。</p>
 </blockquote>
 <table>
@@ -448,7 +464,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>runAsync(Runnable runnable)</code></td>
 <td>使用ForkJoinPool.commonPool()作为它的线程池执行异步代码。</td>
 </tr>
@@ -464,7 +481,8 @@
 <td><code>supplyAsync(Supplier&lt;U&gt; supplier, Executor executor)</code></td>
 <td>使用指定的thread pool执行异步代码，异步操作有返回值。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p>下面几乎所有的方法都是一式三份，三种方法的区别是</p>
 <ul>
@@ -473,7 +491,8 @@
 <li>指定线程执行</li>
 </ul>
 </blockquote>
-<h2 id="转换"><a href="#转换" class="headerlink" title="转换"></a>转换</h2><blockquote>
+<h2>转换</h2>
+<blockquote>
 <p>相当于 map 操作</p>
 </blockquote>
 <table>
@@ -483,7 +502,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>thenApply(Function&lt;? super T,? extends U&gt; fn)</code></td>
 <td>接受一个Function&lt;? super T,? extends U&gt;参数用来转换CompletableFuture</td>
 </tr>
@@ -495,7 +515,8 @@
 <td><code>thenApplyAsync(Function&lt;? super T,? extends U&gt; fn, Executor executor)</code></td>
 <td>接受一个Function&lt;? super T,? extends U&gt;参数用来转换CompletableFuture，使用指定的线程池</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p>相当于 flatMap 操作</p>
 </blockquote>
@@ -506,7 +527,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>thenCompose(Function&lt;? super T, ? extends CompletionStage&lt;U&gt;&gt; fn)</code></td>
 <td>在异步操作完成的时候对异步操作的结果进行一些操作，并且仍然返回CompletableFuture类型。</td>
 </tr>
@@ -518,15 +540,18 @@
 <td><code>thenComposeAsync(Function&lt;? super T, ? extends CompletionStage&lt;U&gt;&gt; fn,Executor executor)</code></td>
 <td>在异步操作完成的时候对异步操作的结果进行一些操作，并且仍然返回CompletableFuture类型。使用指定的线程池。</td>
 </tr>
-</tbody></table>
-<h2 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h2><table>
+</tbody>
+</table>
+<h2>组合</h2>
+<table>
 <thead>
 <tr>
 <th>方法名</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>thenCombine(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; fn)</code></td>
 <td>当两个CompletableFuture都正常完成后，执行提供的fn，用它来组合另外一个CompletableFuture的结果。</td>
 </tr>
@@ -538,7 +563,8 @@
 <td><code>thenCombineAsync(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; fn, Executor executor)</code></td>
 <td>当两个CompletableFuture都正常完成后，执行提供的fn，用它来组合另外一个CompletableFuture的结果。使用指定的线程池。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p>thenAcceptBoth跟thenCombine类似，但是返回CompletableFuture类型。</p>
 </blockquote>
@@ -549,7 +575,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>thenAcceptBoth(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; action)</code></td>
 <td>当两个CompletableFuture都正常完成后，执行提供的action，用它来组合另外一个CompletableFuture的结果。</td>
 </tr>
@@ -561,8 +588,10 @@
 <td><code>thenAcceptBothAsync(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; action, Executor executor)</code></td>
 <td>当两个CompletableFuture都正常完成后，执行提供的action，用它来组合另外一个CompletableFuture的结果。使用指定的线程池。</td>
 </tr>
-</tbody></table>
-<h2 id="计算结果完成时的处理"><a href="#计算结果完成时的处理" class="headerlink" title="计算结果完成时的处理"></a>计算结果完成时的处理</h2><blockquote>
+</tbody>
+</table>
+<h2>计算结果完成时的处理</h2>
+<blockquote>
 <ul>
 <li><code>Action</code>的类型是<code>BiConsumer&lt;? super T,? super Throwable&gt;</code>，它可以处理正常的计算结果，或者异常情况。</li>
 <li>方法不以<code>Async</code>结尾，意味着<code>Action</code>使用相同的线程执行，而<code>Async</code>可能会使用其它的线程去执行(如果使用相同的线程池，也可能会被同一个线程选中执行</li>
@@ -575,7 +604,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>whenComplete(BiConsumer&lt;? super T,? super Throwable&gt; action)</code></td>
 <td>当CompletableFuture完成计算结果时对结果进行处理，或者当CompletableFuture产生异常的时候对异常进行处理。</td>
 </tr>
@@ -587,7 +617,8 @@
 <td><code>whenCompleteAsync(BiConsumer&lt;? super T,? super Throwable&gt; action, Executor executor)</code></td>
 <td>当CompletableFuture完成计算结果时对结果进行处理，或者当CompletableFuture产生异常的时候对异常进行处理。使用指定的线程池。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p><code>handle()</code>相当于whenComplete()+转换。</p>
 <p><code>handle()</code>也可以理解为和<code>thenApply()</code>的含义更为相似，但是比<code>thenApply()</code>增加异常处理的功能。</p>
@@ -599,7 +630,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>handle(BiFunction&lt;? super T, Throwable, ? extends U&gt; fn)</code></td>
 <td>当CompletableFuture完成计算结果或者抛出异常的时候，执行提供的fn</td>
 </tr>
@@ -611,7 +643,8 @@
 <td><code>handleAsync(BiFunction&lt;? super T, Throwable, ? extends U&gt; fn, Executor executor)</code></td>
 <td>当CompletableFuture完成计算结果或者抛出异常的时候，执行提供的fn，使用指定的线程池。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <table>
 <thead>
 <tr>
@@ -619,19 +652,23 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>exceptionally(Function fn)</code></td>
 <td>只有当CompletableFuture抛出异常的时候，才会触发这个exceptionally的计算，调用function计算值。</td>
 </tr>
-</tbody></table>
-<h2 id="纯消费"><a href="#纯消费" class="headerlink" title="纯消费"></a>纯消费</h2><table>
+</tbody>
+</table>
+<h2>纯消费</h2>
+<table>
 <thead>
 <tr>
 <th>方法名</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>thenAccept(Consumer&lt;? super T&gt; action)</code></td>
 <td>当CompletableFuture完成计算结果，只对结果执行Action，而不返回新的计算值</td>
 </tr>
@@ -643,8 +680,10 @@
 <td><code>thenAcceptAsync(Consumer&lt;? super T&gt; action, Executor executor)</code></td>
 <td>当CompletableFuture完成计算结果，只对结果执行Action，而不返回新的计算值</td>
 </tr>
-</tbody></table>
-<h2 id="Either"><a href="#Either" class="headerlink" title="Either"></a>Either</h2><blockquote>
+</tbody>
+</table>
+<h2>Either</h2>
+<blockquote>
 <p>Either 表示的是两个CompletableFuture，当其中任意一个CompletableFuture计算完成的时候就会执行。</p>
 </blockquote>
 <table>
@@ -654,7 +693,8 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>acceptEither(CompletionStage&lt;? extends T&gt; other, Consumer&lt;? super T&gt; action)</code></td>
 <td>当任意一个CompletableFuture完成的时候，action这个消费者就会被执行。</td>
 </tr>
@@ -666,7 +706,8 @@
 <td><code>acceptEitherAsync(CompletionStage&lt;? extends T&gt; other, Consumer&lt;? super T&gt; action, Executor executor)</code></td>
 <td>当任意一个CompletableFuture完成的时候，action这个消费者就会被执行。使用指定的线程池</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 <blockquote>
 <p><code>applyToEither()</code> 是<code>acceptEither()</code>的哥哥. 当两个future其中一个完成后，后者用于只是简单地调用一些代码，<code>applyToEither()</code>会返回一个新的future. 这个future是在前面两个future其中一个完成后进行执行完成。</p>
 </blockquote>
@@ -677,27 +718,31 @@
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>applyToEither(CompletionStage&lt;? extends T&gt; other, Function&lt;? super T,U&gt; fn)</code></td>
-<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture<u>的计算结果。</u></td>
+<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture&lt;U&gt;的计算结果。</td>
 </tr>
 <tr>
 <td><code>applyToEitherAsync(CompletionStage&lt;? extends T&gt; other, Function&lt;? super T,U&gt; fn)</code></td>
-<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture<u>的计算结果。使用ForkJoinPool</u></td>
+<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture&lt;U&gt;的计算结果。使用ForkJoinPool</td>
 </tr>
 <tr>
 <td><code>applyToEitherAsync(CompletionStage&lt;? extends T&gt; other, Function&lt;? super T,U&gt; fn, Executor executor)</code></td>
-<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture<u>的计算结果。使用指定的线程池</u></td>
+<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture&lt;U&gt;的计算结果。使用指定的线程池</td>
 </tr>
-</tbody></table>
-<h2 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h2><table>
+</tbody>
+</table>
+<h2>其他方法</h2>
+<table>
 <thead>
 <tr>
 <th>方法名</th>
 <th>描述</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td><code>allOf(CompletableFuture&lt;?&gt;... cfs)</code></td>
 <td>在所有Future对象完成后结束，并返回一个future。</td>
 </tr>
@@ -705,7 +750,8 @@
 <td><code>anyOf(CompletableFuture&lt;?&gt;... cfs)</code></td>
 <td>在任何一个Future对象结束后结束，并返回一个future。</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
 
     </div>
 
@@ -880,7 +926,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CompletableFuture-总结"><span class="nav-number">1.</span> <span class="nav-text">CompletableFuture 总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Future接口"><span class="nav-number">1.1.</span> <span class="nav-text">Future接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主动完成计算"><span class="nav-number">1.2.</span> <span class="nav-text">主动完成计算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过阻塞或者轮询获得结果"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">通过阻塞或者轮询获得结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步获取结果"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">异步获取结果</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#静态工厂方法"><span class="nav-number">1.3.</span> <span class="nav-text">静态工厂方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#转换"><span class="nav-number">1.4.</span> <span class="nav-text">转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#组合"><span class="nav-number">1.5.</span> <span class="nav-text">组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算结果完成时的处理"><span class="nav-number">1.6.</span> <span class="nav-text">计算结果完成时的处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#纯消费"><span class="nav-number">1.7.</span> <span class="nav-text">纯消费</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Either"><span class="nav-number">1.8.</span> <span class="nav-text">Either</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他方法"><span class="nav-number">1.9.</span> <span class="nav-text">其他方法</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#null"><span class="nav-number">1.</span> <span class="nav-text">CompletableFuture 总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.1.</span> <span class="nav-text">Future接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.2.</span> <span class="nav-text">主动完成计算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">通过阻塞或者轮询获得结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#null"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">异步获取结果</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.3.</span> <span class="nav-text">静态工厂方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.4.</span> <span class="nav-text">转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.5.</span> <span class="nav-text">组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.6.</span> <span class="nav-text">计算结果完成时的处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.7.</span> <span class="nav-text">纯消费</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.8.</span> <span class="nav-text">Either</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#null"><span class="nav-number">1.9.</span> <span class="nav-text">其他方法</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -941,6 +987,9 @@
   </div>
 
   
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
   <script src="/lib/jquery/index.js?v=3.4.1"></script>
   <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
   <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
