@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="generator" content="Hexo 3.9.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.3.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.3.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.3.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.3.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.3.0',
+    exturl: false,
+    sidebar: {"position":"left","width":240,"display":"always","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    save_scroll: false,
+    copycode: {"enable":false,"show_result":false,"style":"mac"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。 最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）： Java CompletableFuture 详解 Java8新的">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CompletableFuture 总结">
+<meta property="og:url" content="http://fxbing.github.io/2019/08/18/2019-08-18-CompletableFuture/index.html">
+<meta property="og:site_name" content="小兵的博客">
+<meta property="og:description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。 最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）： Java CompletableFuture 详解 Java8新的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-17T16:00:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CompletableFuture 总结">
+<meta name="twitter:description" content="CompletableFuture 总结CompletableFuture 是Java8 中新增的用来进行函数式异步编程的工具类。 最近学习源码的过程中看到有很多 CompletableFuture 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）： Java CompletableFuture 详解 Java8新的">
+  <link rel="canonical" href="http://fxbing.github.io/2019/08/18/2019-08-18-CompletableFuture/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>CompletableFuture 总结 | 小兵的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <div class="container sidebar-position-left">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小兵的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">3</span></a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+      
+    
+
+    <a href="/Categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">2</span></a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">5</span></a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-commonweal">
+      
+    
+      
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>公益 404</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a href="javascript:;" class="popup-trigger">
+        
+          <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+      </li>
+    
+  </ul>
+
+</nav>
+  <div class="site-search">
+    
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+  </div>
+</div>
+    </header>
+
+    
+
+  <a href="https://github.com/fxbing" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content page-post-detail">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://fxbing.github.io/2019/08/18/2019-08-18-CompletableFuture/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="fxbing">
+      <meta itemprop="description" content="既然生活这么苦，那还不笑一笑让自己开心一点。">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小兵的博客">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">CompletableFuture 总结
+
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-08-18 00:00:00" itemprop="dateCreated datePublished" datetime="2019-08-18T00:00:00+08:00">2019-08-18</time>
+            </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>7.3k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>7 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="CompletableFuture-总结"><a href="#CompletableFuture-总结" class="headerlink" title="CompletableFuture 总结"></a>CompletableFuture 总结</h1><p><code>CompletableFuture</code> 是Java8 中新增的用来进行函数式异步编程的工具类。</p>
+<p>最近学习源码的过程中看到有很多 <code>CompletableFuture</code> 的使用，感觉自己对这个类中的各个方法的使用场景和方法不是很熟悉，遂参考了下面几篇博客进行学习（本文大部分内容也都来自下面几篇博客）：</p>
+<p><a href="https://colobu.com/2016/02/29/Java-CompletableFuture/" target="_blank" rel="noopener">Java CompletableFuture 详解</a></p>
+<p><a href="https://juejin.im/post/59eae61b51882549fc512b34" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(一)</a></p>
+<p><a href="https://juejin.im/post/59eae6e4f265da430e4e4cb5" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(二)</a></p>
+<p><a href="https://juejin.im/post/59eae6e4f265da430e4e4cb5" target="_blank" rel="noopener">Java8新的异步编程方式 CompletableFuture(三)</a></p>
+<p>上面的博客介绍的比较详细，为了自己查阅回看的方便，这里对这些方法进行一下总结（这里只总结不举例，具体使用需要看上面的博客）。</p>
+<a id="more"></a>
+
+
+<h2 id="Future接口"><a href="#Future接口" class="headerlink" title="Future接口"></a>Future接口</h2><p><code>Feture</code> 接口包含五个方法，介绍如下：</p>
+<ul>
+<li><p><code>boolean cancel (boolean mayInterruptIfRunning)</code> 取消任务的执行。参数指定是否立即中断任务执行，或者等等任务结束</p>
+</li>
+<li><p><code>boolean isCancelled ()</code> 任务是否已经取消，任务正常完成前将其取消，则返回 <code>true</code></p>
+</li>
+<li><p><code>boolean isDone ()</code> 任务是否已经完成。需要注意的是如果任务正常终止、异常或取消，都将返回<code>true</code></p>
+</li>
+<li><p><code>V get () throws InterruptedException, ExecutionException</code>  等待任务执行结束，然后获得V类型的结果。InterruptedException 线程被中断异常， ExecutionException任务执行异常，如果任务被取消，还会抛出CancellationException</p>
+</li>
+<li><p><code>V get (long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException</code>同上面的get功能一样，多了设置超时时间。参数timeout指定超时时间，uint指定时间的单位，在枚举类TimeUnit中有相关的定义。如果计 算超时，将抛出TimeoutException</p>
+</li>
+</ul>
+<h2 id="主动完成计算"><a href="#主动完成计算" class="headerlink" title="主动完成计算"></a>主动完成计算</h2><p><code>CompletableFuture</code>实现了<code>CompletionStage</code>和<code>Future</code>两个接口。</p>
+<h4 id="通过阻塞或者轮询获得结果"><a href="#通过阻塞或者轮询获得结果" class="headerlink" title="通过阻塞或者轮询获得结果"></a>通过阻塞或者轮询获得结果</h4><table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>public T get()</code></td>
+<td><code>Future</code>接口实现</td>
+</tr>
+<tr>
+<td><code>public T get(long timeout, TimeUnit unit)</code></td>
+<td><code>Future</code>接口实现</td>
+</tr>
+<tr>
+<td><code>public T getNow(T valueIfAbsent)</code></td>
+<td>如果结果已经计算完则返回结果或者抛出异常，否则返回给定的<code>valueIfAbsent</code>值。</td>
+</tr>
+<tr>
+<td><code>public T join()</code></td>
+<td>返回计算的结果或者抛出一个unchecked异常(CompletionException)</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><code>join()</code>和<code>get()</code>的区别是，<code>join()</code>只会抛出<strong>未检查异常</strong>（不需要使用<code>try...catch..</code>进行处理），而<code>get()</code>会抛出<strong>检查异常</strong>。</p>
+</blockquote>
+<h4 id="异步获取结果"><a href="#异步获取结果" class="headerlink" title="异步获取结果"></a>异步获取结果</h4><blockquote>
+<ul>
+<li><p>下面两个函数的调用会立即执行，并且只能执行一次。</p>
+</li>
+<li><p>如果该任务已经执行完成，那么下面两个调用会无效，只能获取执行完成的结果。其实就是使任务立即结束（返回指定结果或者指定抛出异常）。</p>
+</li>
+<li><p>比较适合需要返回<code>CompletableFuture</code>的方法，先创建一个空的<code>CompletableFuture</code>，之后通过下面两个函数指定前面创建的<code>CompletableFuture</code>的返回值。</p>
+</li>
+</ul>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>complete(T t)</code></td>
+<td>完成异步执行，并返回future的结果</td>
+</tr>
+<tr>
+<td><code>completeExceptionally(Throwable ex)</code></td>
+<td>异步执行不正常的结束</td>
+</tr>
+</tbody></table>
+<h2 id="静态工厂方法"><a href="#静态工厂方法" class="headerlink" title="静态工厂方法"></a>静态工厂方法</h2><blockquote>
+<p>run 和 supply 的主要区别是异步操作是否有返回值（下面列出的所有方法也基本都是按照<strong>是否有返回值</strong>分为两类）。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>runAsync(Runnable runnable)</code></td>
+<td>使用ForkJoinPool.commonPool()作为它的线程池执行异步代码。</td>
+</tr>
+<tr>
+<td><code>runAsync(Runnable runnable, Executor executor)</code></td>
+<td>使用指定的thread pool执行异步代码。</td>
+</tr>
+<tr>
+<td><code>supplyAsync(Supplier&lt;U&gt; supplier)</code></td>
+<td>使用ForkJoinPool.commonPool()作为它的线程池执行异步代码，异步操作有返回值。</td>
+</tr>
+<tr>
+<td><code>supplyAsync(Supplier&lt;U&gt; supplier, Executor executor)</code></td>
+<td>使用指定的thread pool执行异步代码，异步操作有返回值。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>下面几乎所有的方法都是一式三份，三种方法的区别是</p>
+<ul>
+<li>直接在当前线程执行</li>
+<li>换另一个线程（但是不指定线程）异步执行</li>
+<li>指定线程执行</li>
+</ul>
+</blockquote>
+<h2 id="转换"><a href="#转换" class="headerlink" title="转换"></a>转换</h2><blockquote>
+<p>相当于 map 操作</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>thenApply(Function&lt;? super T,? extends U&gt; fn)</code></td>
+<td>接受一个Function&lt;? super T,? extends U&gt;参数用来转换CompletableFuture</td>
+</tr>
+<tr>
+<td><code>thenApplyAsync(Function&lt;? super T,? extends U&gt; fn)</code></td>
+<td>接受一个Function&lt;? super T,? extends U&gt;参数用来转换CompletableFuture，使用ForkJoinPool</td>
+</tr>
+<tr>
+<td><code>thenApplyAsync(Function&lt;? super T,? extends U&gt; fn, Executor executor)</code></td>
+<td>接受一个Function&lt;? super T,? extends U&gt;参数用来转换CompletableFuture，使用指定的线程池</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>相当于 flatMap 操作</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>thenCompose(Function&lt;? super T, ? extends CompletionStage&lt;U&gt;&gt; fn)</code></td>
+<td>在异步操作完成的时候对异步操作的结果进行一些操作，并且仍然返回CompletableFuture类型。</td>
+</tr>
+<tr>
+<td><code>thenComposeAsync(Function&lt;? super T, ? extends CompletionStage&lt;U&gt;&gt; fn)</code></td>
+<td>在异步操作完成的时候对异步操作的结果进行一些操作，并且仍然返回CompletableFuture类型。使用ForkJoinPool。</td>
+</tr>
+<tr>
+<td><code>thenComposeAsync(Function&lt;? super T, ? extends CompletionStage&lt;U&gt;&gt; fn,Executor executor)</code></td>
+<td>在异步操作完成的时候对异步操作的结果进行一些操作，并且仍然返回CompletableFuture类型。使用指定的线程池。</td>
+</tr>
+</tbody></table>
+<h2 id="组合"><a href="#组合" class="headerlink" title="组合"></a>组合</h2><table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>thenCombine(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; fn)</code></td>
+<td>当两个CompletableFuture都正常完成后，执行提供的fn，用它来组合另外一个CompletableFuture的结果。</td>
+</tr>
+<tr>
+<td><code>thenCombineAsync(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; fn)</code></td>
+<td>当两个CompletableFuture都正常完成后，执行提供的fn，用它来组合另外一个CompletableFuture的结果。使用ForkJoinPool。</td>
+</tr>
+<tr>
+<td><code>thenCombineAsync(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; fn, Executor executor)</code></td>
+<td>当两个CompletableFuture都正常完成后，执行提供的fn，用它来组合另外一个CompletableFuture的结果。使用指定的线程池。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>thenAcceptBoth跟thenCombine类似，但是返回CompletableFuture类型。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>thenAcceptBoth(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; action)</code></td>
+<td>当两个CompletableFuture都正常完成后，执行提供的action，用它来组合另外一个CompletableFuture的结果。</td>
+</tr>
+<tr>
+<td><code>thenAcceptBothAsync(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; action)</code></td>
+<td>当两个CompletableFuture都正常完成后，执行提供的action，用它来组合另外一个CompletableFuture的结果。使用ForkJoinPool。</td>
+</tr>
+<tr>
+<td><code>thenAcceptBothAsync(CompletionStage&lt;? extends U&gt; other, BiFunction&lt;? super T,? super U,? extends V&gt; action, Executor executor)</code></td>
+<td>当两个CompletableFuture都正常完成后，执行提供的action，用它来组合另外一个CompletableFuture的结果。使用指定的线程池。</td>
+</tr>
+</tbody></table>
+<h2 id="计算结果完成时的处理"><a href="#计算结果完成时的处理" class="headerlink" title="计算结果完成时的处理"></a>计算结果完成时的处理</h2><blockquote>
+<ul>
+<li><code>Action</code>的类型是<code>BiConsumer&lt;? super T,? super Throwable&gt;</code>，它可以处理正常的计算结果，或者异常情况。</li>
+<li>方法不以<code>Async</code>结尾，意味着<code>Action</code>使用相同的线程执行，而<code>Async</code>可能会使用其它的线程去执行(如果使用相同的线程池，也可能会被同一个线程选中执行</li>
+</ul>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>whenComplete(BiConsumer&lt;? super T,? super Throwable&gt; action)</code></td>
+<td>当CompletableFuture完成计算结果时对结果进行处理，或者当CompletableFuture产生异常的时候对异常进行处理。</td>
+</tr>
+<tr>
+<td><code>whenCompleteAsync(BiConsumer&lt;? super T,? super Throwable&gt; action)</code></td>
+<td>当CompletableFuture完成计算结果时对结果进行处理，或者当CompletableFuture产生异常的时候对异常进行处理。使用ForkJoinPool。</td>
+</tr>
+<tr>
+<td><code>whenCompleteAsync(BiConsumer&lt;? super T,? super Throwable&gt; action, Executor executor)</code></td>
+<td>当CompletableFuture完成计算结果时对结果进行处理，或者当CompletableFuture产生异常的时候对异常进行处理。使用指定的线程池。</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><code>handle()</code>相当于whenComplete()+转换。</p>
+<p><code>handle()</code>也可以理解为和<code>thenApply()</code>的含义更为相似，但是比<code>thenApply()</code>增加异常处理的功能。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>handle(BiFunction&lt;? super T, Throwable, ? extends U&gt; fn)</code></td>
+<td>当CompletableFuture完成计算结果或者抛出异常的时候，执行提供的fn</td>
+</tr>
+<tr>
+<td><code>handleAsync(BiFunction&lt;? super T, Throwable, ? extends U&gt; fn)</code></td>
+<td>当CompletableFuture完成计算结果或者抛出异常的时候，执行提供的fn，使用ForkJoinPool。</td>
+</tr>
+<tr>
+<td><code>handleAsync(BiFunction&lt;? super T, Throwable, ? extends U&gt; fn, Executor executor)</code></td>
+<td>当CompletableFuture完成计算结果或者抛出异常的时候，执行提供的fn，使用指定的线程池。</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>exceptionally(Function fn)</code></td>
+<td>只有当CompletableFuture抛出异常的时候，才会触发这个exceptionally的计算，调用function计算值。</td>
+</tr>
+</tbody></table>
+<h2 id="纯消费"><a href="#纯消费" class="headerlink" title="纯消费"></a>纯消费</h2><table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>thenAccept(Consumer&lt;? super T&gt; action)</code></td>
+<td>当CompletableFuture完成计算结果，只对结果执行Action，而不返回新的计算值</td>
+</tr>
+<tr>
+<td><code>thenAcceptAsync(Consumer&lt;? super T&gt; action)</code></td>
+<td>当CompletableFuture完成计算结果，只对结果执行Action，而不返回新的计算值，使用ForkJoinPool。</td>
+</tr>
+<tr>
+<td><code>thenAcceptAsync(Consumer&lt;? super T&gt; action, Executor executor)</code></td>
+<td>当CompletableFuture完成计算结果，只对结果执行Action，而不返回新的计算值</td>
+</tr>
+</tbody></table>
+<h2 id="Either"><a href="#Either" class="headerlink" title="Either"></a>Either</h2><blockquote>
+<p>Either 表示的是两个CompletableFuture，当其中任意一个CompletableFuture计算完成的时候就会执行。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>acceptEither(CompletionStage&lt;? extends T&gt; other, Consumer&lt;? super T&gt; action)</code></td>
+<td>当任意一个CompletableFuture完成的时候，action这个消费者就会被执行。</td>
+</tr>
+<tr>
+<td><code>acceptEitherAsync(CompletionStage&lt;? extends T&gt; other, Consumer&lt;? super T&gt; action)</code></td>
+<td>当任意一个CompletableFuture完成的时候，action这个消费者就会被执行。使用ForkJoinPool</td>
+</tr>
+<tr>
+<td><code>acceptEitherAsync(CompletionStage&lt;? extends T&gt; other, Consumer&lt;? super T&gt; action, Executor executor)</code></td>
+<td>当任意一个CompletableFuture完成的时候，action这个消费者就会被执行。使用指定的线程池</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><code>applyToEither()</code> 是<code>acceptEither()</code>的哥哥. 当两个future其中一个完成后，后者用于只是简单地调用一些代码，<code>applyToEither()</code>会返回一个新的future. 这个future是在前面两个future其中一个完成后进行执行完成。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>applyToEither(CompletionStage&lt;? extends T&gt; other, Function&lt;? super T,U&gt; fn)</code></td>
+<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture<u>的计算结果。</u></td>
+</tr>
+<tr>
+<td><code>applyToEitherAsync(CompletionStage&lt;? extends T&gt; other, Function&lt;? super T,U&gt; fn)</code></td>
+<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture<u>的计算结果。使用ForkJoinPool</u></td>
+</tr>
+<tr>
+<td><code>applyToEitherAsync(CompletionStage&lt;? extends T&gt; other, Function&lt;? super T,U&gt; fn, Executor executor)</code></td>
+<td>当任意一个CompletableFuture完成的时候，fn会被执行，它的返回值会当作新的CompletableFuture<u>的计算结果。使用指定的线程池</u></td>
+</tr>
+</tbody></table>
+<h2 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h2><table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>allOf(CompletableFuture&lt;?&gt;... cfs)</code></td>
+<td>在所有Future对象完成后结束，并返回一个future。</td>
+</tr>
+<tr>
+<td><code>anyOf(CompletableFuture&lt;?&gt;... cfs)</code></td>
+<td>在任何一个Future对象结束后结束，并返回一个future。</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/Java/" rel="tag"><i class="fa fa-tag"></i> Java</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/08/06/2019-08-06-Pulsar Backlog/" rel="next" title="Pulsar 源码阅读： Backlog">
+                  <i class="fa fa-chevron-left"></i> Pulsar 源码阅读： Backlog
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="gitalk-container"></div>
+  
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/uploads/avatar.jpg"
+      alt="fxbing">
+  <p class="site-author-name" itemprop="name">fxbing</p>
+  <div class="site-description motion-element" itemprop="description">既然生活这么苦，那还不笑一笑让自己开心一点。</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/Categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="https://github.com/fxbing" title="GitHub &rarr; https://github.com/fxbing" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="mailto:94fxiaobing@gmail.com" title="E-Mail &rarr; mailto:94fxiaobing@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+    
+  </div>
+
+
+
+        </div>
+      </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CompletableFuture-总结"><span class="nav-number">1.</span> <span class="nav-text">CompletableFuture 总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Future接口"><span class="nav-number">1.1.</span> <span class="nav-text">Future接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主动完成计算"><span class="nav-number">1.2.</span> <span class="nav-text">主动完成计算</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过阻塞或者轮询获得结果"><span class="nav-number">1.2.0.1.</span> <span class="nav-text">通过阻塞或者轮询获得结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步获取结果"><span class="nav-number">1.2.0.2.</span> <span class="nav-text">异步获取结果</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#静态工厂方法"><span class="nav-number">1.3.</span> <span class="nav-text">静态工厂方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#转换"><span class="nav-number">1.4.</span> <span class="nav-text">转换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#组合"><span class="nav-number">1.5.</span> <span class="nav-text">组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#计算结果完成时的处理"><span class="nav-number">1.6.</span> <span class="nav-text">计算结果完成时的处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#纯消费"><span class="nav-number">1.7.</span> <span class="nav-text">纯消费</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Either"><span class="nav-number">1.8.</span> <span class="nav-text">Either</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他方法"><span class="nav-number">1.9.</span> <span class="nav-text">其他方法</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-fxbing"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">fxbing</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">32k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">29 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.3.0</div>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+
+    
+
+  </div>
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+<script src="/js/utils.js?v=7.3.0"></script>
+  <script src="/js/motion.js?v=7.3.0"></script>
+
+
+  <script src="/js/affix.js?v=7.3.0"></script>
+  <script src="/js/schemes/pisces.js?v=7.3.0"></script>
+
+
+
+<script src="/js/next-boot.js?v=7.3.0"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.3.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+  
+  <script src="/js/scrollspy.js?v=7.3.0"></script>
+<script src="/js/post-details.js?v=7.3.0"></script>
+
+
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', function() {
+    var gitalk = new Gitalk({
+      clientID: '2fa5bf7e74807f1d796b',
+      clientSecret: '2239938ff967e44b65031fb43b9d84c338ebfb6d',
+      repo: 'fxbing.github.io',
+      owner: 'fxbing',
+      admin: ['fxbing'],
+      id: 'a8ccd360dbedc942ab8027db4ef38b80',
+        language: 'zh-CN',
+      
+      distractionFreeMode: 'true'
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+</script>
+
+</body>
+</html>
