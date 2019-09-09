@@ -6,19 +6,24 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://fxbing.github.io">
-  <title>Tag: Pulsar | 小兵的博客</title>
+  <title>走台阶问题 | 小兵的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="既然生活这么苦，那还不笑一笑让自己开心一点。">
-<meta name="keywords" content="技术,生活">
-<meta property="og:type" content="website">
-<meta property="og:title" content="小兵的博客">
-<meta property="og:url" content="http://fxbing.github.io/tags/Pulsar/index.html">
+  <meta name="description" content="这是面试时遇到的一个题目，具体内容如下：  有 n 阶台阶，每次可以走1， 2 或者 3 步，求所有可能走的情况。">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="走台阶问题">
+<meta property="og:url" content="http://fxbing.github.io/2019/09/09/2019-09-09-走台阶问题/index.html">
 <meta property="og:site_name" content="小兵的博客">
-<meta property="og:description" content="既然生活这么苦，那还不笑一笑让自己开心一点。">
+<meta property="og:description" content="这是面试时遇到的一个题目，具体内容如下：  有 n 阶台阶，每次可以走1， 2 或者 3 步，求所有可能走的情况。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://fxbing.github.io/img/s1.png">
+<meta property="og:image" content="http://fxbing.github.io/img/s2.png">
+<meta property="og:image" content="http://fxbing.github.io/img/s3.png">
+<meta property="og:updated_time" content="2019-09-08T16:00:00.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="小兵的博客">
-<meta name="twitter:description" content="既然生活这么苦，那还不笑一笑让自己开心一点。">
+<meta name="twitter:title" content="走台阶问题">
+<meta name="twitter:description" content="这是面试时遇到的一个题目，具体内容如下：  有 n 阶台阶，每次可以走1， 2 或者 3 步，求所有可能走的情况。">
+<meta name="twitter:image" content="http://fxbing.github.io/img/s1.png">
   
     <link rel="alternative" href="/atom.xml" title="小兵的博客" type="application/atom+xml">
   
@@ -156,48 +161,71 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-2019-09-09-走台阶问题" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/08/06/2019-08-06-Pulsar Backlog/" class="archive-article-date">
-  	<time datetime="2019-08-05T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-06</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/08/06/2019-08-06-Pulsar Backlog/">Pulsar 源码阅读： Backlog</a>
+    <h1 class="article-title" itemprop="name">
+      走台阶问题
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2019/09/09/2019-09-09-走台阶问题/" class="archive-article-date">
+  	<time datetime="2019-09-08T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-09-09</time>
+</a>
+        
+      </header>
+    
+    <div align="center" class="post-count">
+    字数：450字 | 预计阅读时长：1分钟
+</div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这是面试时遇到的一个题目，具体内容如下：</p>
+<blockquote>
+<p>有 n 阶台阶，每次可以走1， 2 或者 3 步，求所有可能走的情况。</p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<p>例如：</p>
+<p>输入 ： 3</p>
+<p>输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; &#123;</span><br><span class="line">&gt; &#123;1,1,1&#125;，</span><br><span class="line">&gt; &#123;1,2&#125;，</span><br><span class="line">&gt; &#123;2,1&#125;，</span><br><span class="line">&gt; &#123;3&#125;</span><br><span class="line">&gt; &#125;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h2><p>这个是最先想到的解法，使用 DFS 的思路，穷举所有可能的情况。</p>
+<p><img src="/img/s1.png" alt></p>
+<h2 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h2><p>解法一中 DFS 的过程可能存在重复的情况，可以利用 map 记录已经计算过的情况，省去不必要的重复计算。</p>
+<p><img src="/img/s2.png" alt></p>
+<h2 id="解法三"><a href="#解法三" class="headerlink" title="解法三"></a>解法三</h2><p>解法二中虽然利用 map 记录中间计算的结果，省去了不必要的计算，降低了时间复杂度。但是需要存储 0 到 n -1 所有的中间结果，空间复杂度比较高。解法三使用类似于<strong>动态规划</strong>的思路：n-3 的所有方案再走 3 步，n-2 的所有方案再走 2 步，n-1 的所有方案再走 1 步，再将所有的方案结合在一起，作为最终的结果。<strong>该方案只需要记录三个中间结果即可，大大降低了空间复杂度。</strong></p>
+<p><img src="/img/s3.png" alt></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>一般“走台阶”的问题只需要求解方案总数，直接利用<strong>动态规划</strong>的方案即可。（网上资料较多，此处省略解法，递推公式类似于<strong>斐波那契数列</strong>）</li>
+<li>这个问题可以有很多相似的问题，例如：吃面包，一次最多只能吃 3 个，也可以小于 3 个，所有吃面包的情况，等等。</li>
+<li>解法一和解法二属于典型的有返回值的递归和无返回值的递归的情况，可以作为递归求解问题的样例。</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Pulsar</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">算法</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -210,66 +238,133 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://fxbing.github.io/2019/09/09/2019-09-09-走台阶问题/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2019/07/23/2019-07-23-Pulsar-Retention/" class="archive-article-date">
-  	<time datetime="2019-07-22T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-23</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2019/08/18/2019-08-18-CompletableFuture/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">CompletableFuture 总结</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2019/07/23/2019-07-23-Pulsar-Retention/">Pulsar 源码阅读： Retention</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Pulsar</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/技术//" class="article-tag-list-link color3">技术</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#解法一"><span class="toc-number">1.</span> <span class="toc-text">解法一</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解法二"><span class="toc-number">2.</span> <span class="toc-text">解法二</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解法三"><span class="toc-number">3.</span> <span class="toc-text">解法三</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
+  <div id="gitment-ctn"></div> 
+<link rel="stylesheet" href="//imsun.github.io/gitment/style/default.css">
+<script src="//imsun.github.io/gitment/dist/gitment.browser.js"></script>
+<script>
+var gitment = new Gitment({
+  id: "http://fxbing.github.io/2019/09/09/2019-09-09-走台阶问题/",
+  owner: 'fxbing',
+  repo: 'fxbing.github.io',
+  oauth: {
+    client_id: '2fa5bf7e74807f1d796b',
+    client_secret: '2239938ff967e44b65031fb43b9d84c338ebfb6d',
+  },
+})
+gitment.render('gitment-ctn')
+</script>
+  
 
 
           </div>
@@ -292,9 +387,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
