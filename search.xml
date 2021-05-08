@@ -543,6 +543,54 @@
       </tags>
   </entry>
   <entry>
+    <title>2021-05-06-记一次线上服务内存泄漏问题排查</title>
+    <url>/2021/05/06/2021-05-06-%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%E6%9C%8D%E5%8A%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/</url>
+    <content><![CDATA[<span id="more"></span>
+
+
+        <h2 id="问题发现"   >
+          <a href="#问题发现" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题发现" class="headerlink" title="问题发现"></a>问题发现</h2>
+      
+        <h2 id="排查过程"   >
+          <a href="#排查过程" class="heading-link"><i class="fas fa-link"></i></a><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h2>
+      
+        <h2 id="问题修复-amp-总结"   >
+          <a href="#问题修复-amp-总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题修复-amp-总结" class="headerlink" title="问题修复&amp;总结"></a>问题修复&amp;总结</h2>
+      ]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>JVM</tag>
+        <tag>问题排查</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2021-05-08-记一次kafka宕机问题排查</title>
+    <url>/2021/05/08/2021-05-08-%E8%AE%B0%E4%B8%80%E6%AC%A1kafka%E5%AE%95%E6%9C%BA%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/</url>
+    <content><![CDATA[<p><img src="test.png"></p>
+<span id="more"></span>
+
+
+        <h2 id="问题发现"   >
+          <a href="#问题发现" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题发现" class="headerlink" title="问题发现"></a>问题发现</h2>
+      
+        <h2 id="排查过程"   >
+          <a href="#排查过程" class="heading-link"><i class="fas fa-link"></i></a><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h2>
+      
+        <h2 id="问题修复-amp-总结"   >
+          <a href="#问题修复-amp-总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题修复-amp-总结" class="headerlink" title="问题修复&amp;总结"></a>问题修复&amp;总结</h2>
+      ]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>问题排查</tag>
+        <tag>kafka</tag>
+        <tag>zookeeper</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>《深入理解Java虚拟机》笔记</title>
     <url>/2019/07/28/2019-07-28-%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JAVA%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<p>阅读了《深入理解Java虚拟机》的部分章节，并做了一些简单的笔记，不是很详细，但是可以方便自己查阅。</p>
