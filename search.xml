@@ -543,32 +543,55 @@
       </tags>
   </entry>
   <entry>
-    <title>2021-05-06-记一次线上服务内存泄漏问题排查</title>
-    <url>/2021/05/06/2021-05-06-%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%E6%9C%8D%E5%8A%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/</url>
-    <content><![CDATA[<span id="more"></span>
+    <title>记一次kafka宕机问题排查</title>
+    <url>/2021/05/08/%E8%AE%B0%E4%B8%80%E6%AC%A1kafka%E5%AE%95%E6%9C%BA%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/</url>
+    <content><![CDATA[<p>kafka集群出现宕机报警，自动替换新broker一直无法成功。</p>
+<span id="more"></span>
 
 
-        <h2 id="问题发现"   >
-          <a href="#问题发现" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题发现" class="headerlink" title="问题发现"></a>问题发现</h2>
-      
         <h2 id="排查过程"   >
           <a href="#排查过程" class="heading-link"><i class="fas fa-link"></i></a><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h2>
-      
-        <h2 id="问题修复-amp-总结"   >
-          <a href="#问题修复-amp-总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题修复-amp-总结" class="headerlink" title="问题修复&amp;总结"></a>问题修复&amp;总结</h2>
-      ]]></content>
+      <ol>
+<li><p>kafka集群有一个broker宕机，自动替换机器一直无法成功，手动重启时发现该broker对应的zookeeper上的/brokers/ids目录一直被删除导致。</p>
+</li>
+<li><p>定位zk目录一直被删除的原因：参照<span class="exturl"><a class="exturl__link"   href="https://www.cnblogs.com/cyl048/p/8984661.html" >Zookeeper日志文件&amp;事务日志&amp;数据快照</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>查看zk事务日志</p>
+</li>
+<li><p>首先查看zk事务日志所在的目录:</p>
+<figure class="highlight shell"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> zookeeper/conf</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> grep dataLogDir *</span></span><br><span class="line">zoo.cfg:dataLogDir=/home/var/lib/zookeeper/</span><br></pre></td></tr></table></div></figure></li>
+<li><p>通过<code>java -classpath .:lib/slf4j-api-1.6.1.jar:zookeeper-3.4.6.jar org.apache.zookeeper.server.LogFormatter /home/var/lib/zookeeper/version-2/log.10263212a| grep brokers/ids</code>查看事务日志，发现/brokers/ids/9984确实在刚刚创建时就被立刻删除了，并且可以找到zk的session id<img src="1.png"></p>
+</li>
+<li><p>任一找到一个删除该zk节点的session id，查找zk日志，确定删除操作的客户端<img src="2.png"></p>
+<blockquote>
+<ul>
+<li>排查过程中发现，好多session id在zk日志中找不到，后面经同学提示才发现原因是zk有5个节点，事务日志在所有节点时相同的，但是普通日志只包含连接本节点的session id，所以需要在所有zk节点的普通日志中进行查找。</li>
+<li>session closed时才会打印客户端ip</li>
+</ul>
+</blockquote>
+</li>
+<li><p>问题确定：原来是删除操作的broker与新启动的broker id相同，都为9884，但是由于执行删除操作的机器有问题，一直在重启，每次启动时前都会先删除/brokers/ids/9984这个zk节点</p>
+</li>
+</ol>
+
+        <h2 id="经验总结"   >
+          <a href="#经验总结" class="heading-link"><i class="fas fa-link"></i></a><a href="#经验总结" class="headerlink" title="经验总结"></a>经验总结</h2>
+      <ol>
+<li>zk事务日志的查看方式：<span class="exturl"><a class="exturl__link"   href="https://www.cnblogs.com/cyl048/p/8984661.html" >Zookeeper日志文件&amp;事务日志&amp;数据快照</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li>zk所有节点的事务日志是相同的，但是普通日志中只有与当前节点连接的session信息</li>
+</ol>
+]]></content>
       <categories>
         <category>技术</category>
       </categories>
       <tags>
-        <tag>JVM</tag>
+        <tag>kafka</tag>
+        <tag>zookeeper</tag>
         <tag>问题排查</tag>
       </tags>
   </entry>
   <entry>
-    <title>2021-05-08-记一次kafka宕机问题排查</title>
-    <url>/2021/05/08/2021-05-08-%E8%AE%B0%E4%B8%80%E6%AC%A1kafka%E5%AE%95%E6%9C%BA%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/</url>
-    <content><![CDATA[<p><img src="test.png"></p>
+    <title>记一次线上服务内存泄漏问题排查</title>
+    <url>/2021/05/06/%E8%AE%B0%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%E6%9C%8D%E5%8A%A1%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5/</url>
+    <content><![CDATA[<p>内存泄漏</p>
 <span id="more"></span>
 
 
@@ -586,8 +609,7 @@
       </categories>
       <tags>
         <tag>问题排查</tag>
-        <tag>kafka</tag>
-        <tag>zookeeper</tag>
+        <tag>JVM</tag>
       </tags>
   </entry>
   <entry>
