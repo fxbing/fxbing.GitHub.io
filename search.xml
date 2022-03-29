@@ -1764,7 +1764,7 @@
         <h2 id="背景信息"   >
           <a href="#背景信息" class="heading-link"><i class="fas fa-link"></i></a><a href="#背景信息" class="headerlink" title="背景信息"></a>背景信息</h2>
       <p>在 Kafka 中，Zookeeper 客户端没有使用常见的客户端工具（如：Curator），而是直接基于原生的客户端实现了自己的 KafkaZkClient，将一些通用或特有的 Zookeeper 操作封装在内。因此，关于 Zookeeper 的使用及回调等逻辑也完全是独立实现的。另外，由于 Zookeeper 中一个节点下的 Watcher 顺序触发，如果同一个节点下有大量的 Watcher，将会产生性能瓶颈。下面将基于这些背景信息来介绍 Kafka 是如何基于 Zookeeper 实现高效的动态配置管理的。</p>
-<p><img src="./Kafka-%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE/dynamicconfig.png" alt="Kafka 动态配置结构"></p>
+<p><img   src="https://github.com/fxbing/fxbing.GitHub.io/blob/master/2022/03/29/Kafka-%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE/dynamicconfig.png?raw=true" style=""  alt="Kafka 动态配置结构"></p>
 
         <h2 id="Kafka-动态配置-Zookeeper-目录结构"   >
           <a href="#Kafka-动态配置-Zookeeper-目录结构" class="heading-link"><i class="fas fa-link"></i></a><a href="#Kafka-动态配置-Zookeeper-目录结构" class="headerlink" title="Kafka 动态配置 Zookeeper 目录结构"></a>Kafka 动态配置 Zookeeper 目录结构</h2>
