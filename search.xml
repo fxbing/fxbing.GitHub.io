@@ -1768,7 +1768,7 @@
 
         <h2 id="Kafka-动态配置-Zookeeper-目录结构"   >
           <a href="#Kafka-动态配置-Zookeeper-目录结构" class="heading-link"><i class="fas fa-link"></i></a><a href="#Kafka-动态配置-Zookeeper-目录结构" class="headerlink" title="Kafka 动态配置 Zookeeper 目录结构"></a>Kafka 动态配置 Zookeeper 目录结构</h2>
-      <p>在当前版本的 Kafka 中，动态配置类型有 5 种：topic, client, user, broker, ip。Kafka 动态配置的目录结构为： <code>/config/entityType/entityName</code> ，entityType 代表配置的类型，entityName 代表具体某个实体，比如：Topic 类型对应的实体就是具体某个 Topic，某个配置类型下所有实体的默认配置的 entityName 为 <code>&lt;deafult&gt;</code> (<strong>topic 类型没有 <code>&lt;default&gt;</code> 配置</strong>)。具体来说，所有 Topic 的默认动态配置会放在 <code>/config/topic/&lt;default&gt;</code> 的节点信息中，Topic AAA 的所有动态配置会放在 <code>/config/topic/AAA</code> 的节点信息中。</p>
+      <p>在当前版本的 Kafka 中，动态配置类型有 5 种：topic, client, user, broker, ip。Kafka 动态配置的目录结构为： <code>/config/entityType/entityName</code> ，entityType 代表配置的类型，entityName 代表具体某个实体，比如：Topic 类型对应的实体就是具体某个 Topic，某个配置类型下所有实体的默认配置的 entityName 为 <code>&lt;deafult&gt;</code> (<strong>topic 类型没有 <code>&lt;default&gt;</code> 配置，通过 broker 类型来修改 <code>LogConfig</code> 的默认配置</strong>)。具体来说，所有 Topic 的默认动态配置会放在 <code>/config/topic/&lt;default&gt;</code> 的节点信息中，Topic AAA 的所有动态配置会放在 <code>/config/topic/AAA</code> 的节点信息中。</p>
 
         <h2 id="Listener-实现"   >
           <a href="#Listener-实现" class="heading-link"><i class="fas fa-link"></i></a><a href="#Listener-实现" class="headerlink" title="Listener 实现"></a>Listener 实现</h2>
