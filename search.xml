@@ -1754,10 +1754,7 @@
   <entry>
     <title>Kafka 源码学习：动态配置</title>
     <url>/2022/03/29/Kafka-%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%EF%BC%9A%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[
-        <h1 id="Kafka-动态配置实现"   >
-          <a href="#Kafka-动态配置实现" class="heading-link"><i class="fas fa-link"></i></a><a href="#Kafka-动态配置实现" class="headerlink" title="Kafka 动态配置实现"></a>Kafka 动态配置实现</h1>
-      <p>Kafka 的动态配置基于 Zookeeper 实现，本文主要梳理了 Kafka（version：2.8） 中动态配置的实现逻辑。</p>
+    <content><![CDATA[<p>Kafka 的动态配置基于 Zookeeper 实现，本文主要梳理了 Kafka（version：2.8） 中动态配置的实现逻辑。</p>
 <span id="more"></span>
 
 
