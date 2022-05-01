@@ -1812,64 +1812,74 @@
     <url>/2022/05/01/Kafka-%E5%92%8C-Pulsar-%E7%9A%84-Compaction-%E5%AE%9E%E7%8E%B0/</url>
     <content><![CDATA[<hr>
 <p>本文主要对 Kafka 和 Pulsar 的 Log Compaction 原理进行介绍，并以我的理解进行简单的对比说明。</p>
-<!--more>
+<span id="more"></span>
 
-在 Kafka 和 Pulsar 中，都具备 Log Campaction（日志挤压）的能力，Compaction 不同于 Log Compression（日志压缩），Compaction 是指将 Topic 历史日志中相同 Key 的消息只保留最新的一条，而 Compression 是指消息维度利用各种压缩算法（如：gzip、lz4、zstd等）减小消息大小但不改变消息内容。Compaction 的使用场景的特点：一是消息有 key，二是相同 key 的消息只关心最新的内容，例如：记录每支股票价格变动的 Topic，股票名称设置为 key，股票价格设置为 value，一般只关心股票的最新价格。在这种场景下，配置 Compaction 可以让 Topic 存储的数据更少，从而在需要全量读取 Topic 内容时速度更快。
+<p>在 Kafka 和 Pulsar 中，都具备 Log Campaction（日志挤压）的能力，Compaction 不同于 Log Compression（日志压缩），Compaction 是指将 Topic 历史日志中相同 Key 的消息只保留最新的一条，而 Compression 是指消息维度利用各种压缩算法（如：gzip、lz4、zstd等）减小消息大小但不改变消息内容。Compaction 的使用场景的特点：一是消息有 key，二是相同 key 的消息只关心最新的内容，例如：记录每支股票价格变动的 Topic，股票名称设置为 key，股票价格设置为 value，一般只关心股票的最新价格。在这种场景下，配置 Compaction 可以让 Topic 存储的数据更少，从而在需要全量读取 Topic 内容时速度更快。</p>
 
-## Kafka Log Compaction
+        <h2 id="Kafka-Log-Compaction"   >
+          <a href="#Kafka-Log-Compaction" class="heading-link"><i class="fas fa-link"></i></a><a href="#Kafka-Log-Compaction" class="headerlink" title="Kafka Log Compaction"></a>Kafka Log Compaction</h2>
+      <blockquote>
+<p>本文介绍基于 Kafka 2.8，并且忽略了幂等消息、事务消息的相关处理逻辑，如有兴趣，可以自行阅读源码了解。</p>
+</blockquote>
+<p>在 Kafka 中，Topic 配置 <code>cleanup.policy</code>用来控制 Topic 的数据清理策略，该配置的可选值有两个：一个是<code>delete</code>，表示 Topic 中数据超过保留时间或保留大小限制时，直接删除最旧的数据；另一个是<code>compact</code>，表示对于 Topic 中的旧数据（非 Active Segment 中的数据）执行挤压，一定范围内，对于 key 相同（没有 key 的消息会被删除）的消息，只保留最新的一条。对于每个 Topic 可以选择一种清理策略进行配置，也可以同时配置两种策略。本文介绍的是 <code>compact</code>这个策略，在 Kafka 使用过程中，用来存放 commit offset 信息的的内部 Topic:<code>__consumer_offsets</code> 会被配置为该策略，普通 Topic 一般很少使用。</p>
 
-> 本文介绍基于 Kafka 2.8，并且忽略了幂等消息、事务消息的相关处理逻辑，如有兴趣，可以自行阅读源码了解。
+        <h3 id="实现原理"   >
+          <a href="#实现原理" class="heading-link"><i class="fas fa-link"></i></a><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h3>
+      <p>对于一台 Kafka Broker， Log Compaction 的主要流程如下：</p>
+<ol>
+<li>创建 LogCleaner，启动配置指定数量的 CleanerThread，负责该 Broker 的 Log Compaction。</li>
+<li>每个 CleanerThread 循环执行日志清理工作，循环过程如下：<ol>
+<li>寻找一个待清理的 TopicPartition。</li>
+<li>遍历该TopicPartition 中所有待清理的 Segment，构造 OffsetMap 记录每个 key 最新的 offset 及对应的消息时间。</li>
+<li>对该TopicPartition 中所有待清理的 Segment 进行分组，保证每组 Segment 的 Log 文件总大小和 Index 文件总大小不会超过 LogConfig 允许的范围并且每组 Segment 的 offset 极差不会超过<code>Int.MaxValue</code>（Kafka 中 Segment 内的相对 offset 为整型，这个检查是为了避免相对 offset 溢出）。</li>
+<li>将 Segment 按照分好的组进行清理，每一组 Segment 聚合为一个新的 Segment。每组 Segment 的清理过程为：创建一个新的 Segment，然后根据 OffsetMap 中记录的信息选择需要保留的消息，存入新 Segment，最后使用新 Segment 覆盖这一组旧 Segment。</li>
+<li>对于所有已经执行完成 Compaction 流程并且<code>cleanup.policy</code>配置包含<code>compact</code>策略的 Log 进行删除，本次删除不是前面用一个新 Segment 替换一组旧 Segment 中的删除，而是调用<code>Log.deleteOldSegments</code>。该方法会删除<code>LogStartOffset</code>之前的所有 Segment，如果<code>cleanup.policy</code>配置同时还包含<code>delete</code>策略，也会删除超过保留时间或保留大小限制的 Segment。</li>
+</ol>
+</li>
+</ol>
 
-在 Kafka 中，Topic 配置 `cleanup.policy`用来控制 Topic 的数据清理策略，该配置的可选值有两个：一个是`delete`，表示 Topic 中数据超过保留时间或保留大小限制时，直接删除最旧的数据；另一个是`compact`，表示对于 Topic 中的旧数据（非 Active Segment 中的数据）执行挤压，一定范围内，对于 key 相同（没有 key 的消息会被删除）的消息，只保留最新的一条。对于每个 Topic 可以选择一种清理策略进行配置，也可以同时配置两种策略。本文介绍的是 `compact`这个策略，在 Kafka 使用过程中，用来存放 commit offset 信息的的内部 Topic:`__consumer_offsets` 会被配置为该策略，普通 Topic 一般很少使用。
+        <h3 id="详细说明"   >
+          <a href="#详细说明" class="heading-link"><i class="fas fa-link"></i></a><a href="#详细说明" class="headerlink" title="详细说明"></a>详细说明</h3>
+      <p>下面以Q&amp;A的方式介绍日志清理的细节和逻辑：</p>
 
-### 实现原理
+        <h4 id="多个-CleanerThread-是如何保证-Compaction-过程线程安全的"   >
+          <a href="#多个-CleanerThread-是如何保证-Compaction-过程线程安全的" class="heading-link"><i class="fas fa-link"></i></a><a href="#多个-CleanerThread-是如何保证-Compaction-过程线程安全的" class="headerlink" title="多个 CleanerThread 是如何保证 Compaction 过程线程安全的?"></a>多个 CleanerThread 是如何保证 Compaction 过程线程安全的?</h4>
+      <p>Kafka 中 Log Compaction 的实现主要是<code>LogCleaner</code>和<code>LogCleanerManager</code>两个类，<code>LogCleaner</code>是 Compaction 工作的主类，负责整体的工作流程，<code>LogCleanerManager</code>负责 Compaction 状态机的管理。所有状态如下：</p>
+<p><img src="https://s3.bmp.ovh/imgs/2022/04/29/52b607617aa123f4.png"></p>
+<ol>
+<li><code>None</code> ：TopicPartition 未清理状态。</li>
+<li><code>LogCleaningInProgress</code> ：清理正在进行中，当 TopicPartition 被选中为待清理 Log 时会变为该状态。</li>
+<li><code>LogCleaningAborted</code> ：清理中止，这是一个从<code>LogCleaningInProgress</code>到<code>LogCleaningPaused(1)</code>的中间状态，在外部发生 truncate、坏盘等情况时需要放弃现在正在的清理操作， 终止后该 TopicPartition 会标记为 <code>LogCleaningAborted</code>。</li>
+<li><code>LogCleaningPaused(i)</code>：清理暂停，i 的初始值为1，这是一个重入的状态，即：如果当前状态是<code>LogCleaningPaused(i)</code>，再次暂停该 TopicPartition 的话，状态会变为<code>LogCleaningPaused(i+1)</code>，从暂停状态恢复的话，状态会变为<code>LogCleaningPaused(i-1)</code>（i-1=0 时直接变为<code>None</code>状态）。会触发状态变为<code>LogCleaningPaused(i)</code>的情况如下（下面的“暂停”和“暂停恢复”分别代表 i + 1 和 i - 1）：<ol>
+<li>Topic 配置<code>cleanup.policy</code>不包含<code>compact</code>：暂停</li>
+<li>外部发生 truncate、坏盘等情况时该 TopicPartition 状态为<code>None</code>或<code>LogCleaningPaused(i)</code>：暂停</li>
+<li>本轮清理完成且该 TopicPartition 状态为<code>LogCleaningAborted</code>：暂停</li>
+<li>触发暂停的操作完成：暂停恢复</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>我理解中止状态和暂停状态的区别是：是否可以在本轮清理中恢复。在外部发生 truncate、坏盘等情况时，如果一个 TopicPartition 没有处于清理过程中，可以标记为暂停，在触发暂停的情况结束后，恢复清理流程就会重新执行清理流程。但是如果该 TopicPartition 处于清理过程中，则必须标记为终止，在触发暂停的情况结束后，即使本轮清理没结束，也必须要先标记为暂停，在下轮操作进行清理。这是因为如果已经在清理过程中了，本轮清理会有一些中间态的信息，不容易从中间态进行恢复。</p>
+</blockquote>
+<p>对于每个 CleanerThread，每次都会通过<code>LogCleanerManager.grabFilthiestCompactedLog</code>方法来搜索状态为<code>None</code>并且需要被清理的 TopicPartition 进行清理。<code>LogCleanerManager</code>中的所有状态变更都会加锁，保证状态机是线程安全的，多个 CleanerThread 通过该状态机保证了所有 TopicPartition 的 Compaction 过程是线程安全的。</p>
 
-对于一台 Kafka Broker， Log Compaction 的主要流程如下：
-
-1. 创建 LogCleaner，启动配置指定数量的 CleanerThread，负责该 Broker 的 Log Compaction。
-2. 每个 CleanerThread 循环执行日志清理工作，循环过程如下：
-   1. 寻找一个待清理的 TopicPartition。
-   2. 遍历该TopicPartition 中所有待清理的 Segment，构造 OffsetMap 记录每个 key 最新的 offset 及对应的消息时间。
-   3. 对该TopicPartition 中所有待清理的 Segment 进行分组，保证每组 Segment 的 Log 文件总大小和 Index 文件总大小不会超过 LogConfig 允许的范围并且每组 Segment 的 offset 极差不会超过`Int.MaxValue`（Kafka 中 Segment 内的相对 offset 为整型，这个检查是为了避免相对 offset 溢出）。
-   4. 将 Segment 按照分好的组进行清理，每一组 Segment 聚合为一个新的 Segment。每组 Segment 的清理过程为：创建一个新的 Segment，然后根据 OffsetMap 中记录的信息选择需要保留的消息，存入新 Segment，最后使用新 Segment 覆盖这一组旧 Segment。
-   5. 对于所有已经执行完成 Compaction 流程并且`cleanup.policy`配置包含`compact`策略的 Log 进行删除，本次删除不是前面用一个新 Segment 替换一组旧 Segment 中的删除，而是调用`Log.deleteOldSegments`。该方法会删除`LogStartOffset`之前的所有 Segment，如果`cleanup.policy`配置同时还包含`delete`策略，也会删除超过保留时间或保留大小限制的 Segment。
-
-### 详细说明
-
-下面以Q&A的方式介绍日志清理的细节和逻辑：
-
-#### 多个 CleanerThread 是如何保证 Compaction 过程线程安全的?
-
-Kafka 中 Log Compaction 的实现主要是`LogCleaner`和`LogCleanerManager`两个类，`LogCleaner`是 Compaction 工作的主类，负责整体的工作流程，`LogCleanerManager`负责 Compaction 状态机的管理。所有状态如下：
-
-![](https://s3.bmp.ovh/imgs/2022/04/29/52b607617aa123f4.png)
-
-1. `None` ：TopicPartition 未清理状态。
-2. `LogCleaningInProgress` ：清理正在进行中，当 TopicPartition 被选中为待清理 Log 时会变为该状态。
-3. `LogCleaningAborted` ：清理中止，这是一个从`LogCleaningInProgress`到`LogCleaningPaused(1)`的中间状态，在外部发生 truncate、坏盘等情况时需要放弃现在正在的清理操作， 终止后该 TopicPartition 会标记为 `LogCleaningAborted`。
-4. `LogCleaningPaused(i)`：清理暂停，i 的初始值为1，这是一个重入的状态，即：如果当前状态是`LogCleaningPaused(i)`，再次暂停该 TopicPartition 的话，状态会变为`LogCleaningPaused(i+1)`，从暂停状态恢复的话，状态会变为`LogCleaningPaused(i-1)`（i-1=0 时直接变为`None`状态）。会触发状态变为`LogCleaningPaused(i)`的情况如下（下面的“暂停”和“暂停恢复”分别代表 i + 1 和 i - 1）：
-   1. Topic 配置`cleanup.policy`不包含`compact`：暂停
-   2. 外部发生 truncate、坏盘等情况时该 TopicPartition 状态为`None`或`LogCleaningPaused(i)`：暂停
-   3. 本轮清理完成且该 TopicPartition 状态为`LogCleaningAborted`：暂停
-   4. 触发暂停的操作完成：暂停恢复
-
-> 我理解中止状态和暂停状态的区别是：是否可以在本轮清理中恢复。在外部发生 truncate、坏盘等情况时，如果一个 TopicPartition 没有处于清理过程中，可以标记为暂停，在触发暂停的情况结束后，恢复清理流程就会重新执行清理流程。但是如果该 TopicPartition 处于清理过程中，则必须标记为终止，在触发暂停的情况结束后，即使本轮清理没结束，也必须要先标记为暂停，在下轮操作进行清理。这是因为如果已经在清理过程中了，本轮清理会有一些中间态的信息，不容易从中间态进行恢复。
-
-对于每个 CleanerThread，每次都会通过`LogCleanerManager.grabFilthiestCompactedLog`方法来搜索状态为`None`并且需要被清理的 TopicPartition 进行清理。`LogCleanerManager`中的所有状态变更都会加锁，保证状态机是线程安全的，多个 CleanerThread 通过该状态机保证了所有 TopicPartition 的 Compaction 过程是线程安全的。
-
-#### 如何决定哪些 TopicPartition 应该被清理（`LogCleanerManager.grabFilthiestCompactedLog`的详细流程）?
-
-可以清理的 TopicPartition 限制条件有以下几个：
-
-* Topic 配置`cleanup.policy`包含`compact`。
-* TopicPartition 的状态为空：说明没有其他 CleanerThread 操作该 TopicPartition。
-* 该 TopicPartition 是可以清理的：因为坏盘等问题某些 TopicPartition 会被标记为不可清理，需要跳过。
-* 不需要延迟清理：消息在日志中必须存在`"max.compaction.lag.ms"`指定的时间后才能被删除（详情可参考[KIP-354](https://cwiki.apache.org/confluence/display/KAFKA/KIP-354)），只有第一个未压缩 Segment 的估计最早消息时间戳早于`"max.compaction.lag.ms"`才会可以进行 Compaction。
-* 需要被清理的消息总大小大于0：从 LogStartOffset 或 CleanCheckPoint 开始到满足`"max.compaction.lag.ms"`配置要求的 offset 之间的消息总大小
-* 满足清理频率满足要求：有关清理频率的配置可以直接看下面源码 Doc
-
-  <figure class="highlight java"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_COMPACTION_LAG_MS_CONFIG = <span class="string">&quot;min.compaction.lag.ms&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_COMPACTION_LAG_MS_DOC = <span class="string">&quot;The minimum time a message will remain &quot;</span> +</span><br><span class="line">    <span class="string">&quot;uncompacted in the log. Only applicable for logs that are being compacted.&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MAX_COMPACTION_LAG_MS_CONFIG = <span class="string">&quot;max.compaction.lag.ms&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MAX_COMPACTION_LAG_MS_DOC = <span class="string">&quot;The maximum time a message will remain &quot;</span> +</span><br><span class="line">    <span class="string">&quot;ineligible for compaction in the log. Only applicable for logs that are being compacted.&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_CLEANABLE_DIRTY_RATIO_CONFIG = <span class="string">&quot;min.cleanable.dirty.ratio&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_CLEANABLE_DIRTY_RATIO_DOC = <span class="string">&quot;This configuration controls how frequently &quot;</span> +</span><br><span class="line">    <span class="string">&quot;the log compactor will attempt to clean the log (assuming &lt;a href=\&quot;#compaction\&quot;&gt;log &quot;</span> +</span><br><span class="line">    <span class="string">&quot;compaction&lt;/a&gt; is enabled). By default we will avoid cleaning a log where more than &quot;</span> +</span><br><span class="line">    <span class="string">&quot;50% of the log has been compacted. This ratio bounds the maximum space wasted in &quot;</span> +</span><br><span class="line">    <span class="string">&quot;the log by duplicates (at 50% at most 50% of the log could be duplicates). A &quot;</span> +</span><br><span class="line">    <span class="string">&quot;higher ratio will mean fewer, more efficient cleanings but will mean more wasted &quot;</span> +</span><br><span class="line">    <span class="string">&quot;space in the log. If the &quot;</span> + MAX_COMPACTION_LAG_MS_CONFIG + <span class="string">&quot; or the &quot;</span> + MIN_COMPACTION_LAG_MS_CONFIG +</span><br><span class="line">    <span class="string">&quot; configurations are also specified, then the log compactor considers the log to be eligible for compaction &quot;</span> +</span><br><span class="line">    <span class="string">&quot;as soon as either: (i) the dirty ratio threshold has been met and the log has had dirty (uncompacted) &quot;</span> +</span><br><span class="line">    <span class="string">&quot;records for at least the &quot;</span> + MIN_COMPACTION_LAG_MS_CONFIG + <span class="string">&quot; duration, or (ii) if the log has had &quot;</span> +</span><br><span class="line">    <span class="string">&quot;dirty (uncompacted) records for at most the &quot;</span> + MAX_COMPACTION_LAG_MS_CONFIG + <span class="string">&quot; period.&quot;</span>;</span><br></pre></td></tr></table></div></figure>
-
+        <h4 id="如何决定哪些-TopicPartition-应该被清理（LogCleanerManager-grabFilthiestCompactedLog的详细流程）"   >
+          <a href="#如何决定哪些-TopicPartition-应该被清理（LogCleanerManager-grabFilthiestCompactedLog的详细流程）" class="heading-link"><i class="fas fa-link"></i></a><a href="#如何决定哪些-TopicPartition-应该被清理（LogCleanerManager-grabFilthiestCompactedLog的详细流程）" class="headerlink" title="如何决定哪些 TopicPartition 应该被清理（LogCleanerManager.grabFilthiestCompactedLog的详细流程）?"></a>如何决定哪些 TopicPartition 应该被清理（<code>LogCleanerManager.grabFilthiestCompactedLog</code>的详细流程）?</h4>
+      <p>可以清理的 TopicPartition 限制条件有以下几个：</p>
+<ul>
+<li><p>Topic 配置<code>cleanup.policy</code>包含<code>compact</code>。</p>
+</li>
+<li><p>TopicPartition 的状态为空：说明没有其他 CleanerThread 操作该 TopicPartition。</p>
+</li>
+<li><p>该 TopicPartition 是可以清理的：因为坏盘等问题某些 TopicPartition 会被标记为不可清理，需要跳过。</p>
+</li>
+<li><p>不需要延迟清理：消息在日志中必须存在<code>&quot;max.compaction.lag.ms&quot;</code>指定的时间后才能被删除（详情可参考<span class="exturl"><a class="exturl__link"   href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-354" >KIP-354</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>），只有第一个未压缩 Segment 的估计最早消息时间戳早于<code>&quot;max.compaction.lag.ms&quot;</code>才会可以进行 Compaction。</p>
+</li>
+<li><p>需要被清理的消息总大小大于0：从 LogStartOffset 或 CleanCheckPoint 开始到满足<code>&quot;max.compaction.lag.ms&quot;</code>配置要求的 offset 之间的消息总大小</p>
+</li>
+<li><p>满足清理频率满足要求：有关清理频率的配置可以直接看下面源码 Doc</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_COMPACTION_LAG_MS_CONFIG = <span class="string">&quot;min.compaction.lag.ms&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_COMPACTION_LAG_MS_DOC = <span class="string">&quot;The minimum time a message will remain &quot;</span> +</span><br><span class="line">    <span class="string">&quot;uncompacted in the log. Only applicable for logs that are being compacted.&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MAX_COMPACTION_LAG_MS_CONFIG = <span class="string">&quot;max.compaction.lag.ms&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MAX_COMPACTION_LAG_MS_DOC = <span class="string">&quot;The maximum time a message will remain &quot;</span> +</span><br><span class="line">    <span class="string">&quot;ineligible for compaction in the log. Only applicable for logs that are being compacted.&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_CLEANABLE_DIRTY_RATIO_CONFIG = <span class="string">&quot;min.cleanable.dirty.ratio&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String MIN_CLEANABLE_DIRTY_RATIO_DOC = <span class="string">&quot;This configuration controls how frequently &quot;</span> +</span><br><span class="line">    <span class="string">&quot;the log compactor will attempt to clean the log (assuming &lt;a href=\&quot;#compaction\&quot;&gt;log &quot;</span> +</span><br><span class="line">    <span class="string">&quot;compaction&lt;/a&gt; is enabled). By default we will avoid cleaning a log where more than &quot;</span> +</span><br><span class="line">    <span class="string">&quot;50% of the log has been compacted. This ratio bounds the maximum space wasted in &quot;</span> +</span><br><span class="line">    <span class="string">&quot;the log by duplicates (at 50% at most 50% of the log could be duplicates). A &quot;</span> +</span><br><span class="line">    <span class="string">&quot;higher ratio will mean fewer, more efficient cleanings but will mean more wasted &quot;</span> +</span><br><span class="line">    <span class="string">&quot;space in the log. If the &quot;</span> + MAX_COMPACTION_LAG_MS_CONFIG + <span class="string">&quot; or the &quot;</span> + MIN_COMPACTION_LAG_MS_CONFIG +</span><br><span class="line">    <span class="string">&quot; configurations are also specified, then the log compactor considers the log to be eligible for compaction &quot;</span> +</span><br><span class="line">    <span class="string">&quot;as soon as either: (i) the dirty ratio threshold has been met and the log has had dirty (uncompacted) &quot;</span> +</span><br><span class="line">    <span class="string">&quot;records for at least the &quot;</span> + MIN_COMPACTION_LAG_MS_CONFIG + <span class="string">&quot; duration, or (ii) if the log has had &quot;</span> +</span><br><span class="line">    <span class="string">&quot;dirty (uncompacted) records for at most the &quot;</span> + MAX_COMPACTION_LAG_MS_CONFIG + <span class="string">&quot; period.&quot;</span>;</span><br></pre></td></tr></table></div></figure></li>
+</ul>
 
         <h4 id="OffsetMap-的实现原理"   >
           <a href="#OffsetMap-的实现原理" class="heading-link"><i class="fas fa-link"></i></a><a href="#OffsetMap-的实现原理" class="headerlink" title="OffsetMap 的实现原理"></a>OffsetMap 的实现原理</h4>
@@ -1929,8 +1939,8 @@ Kafka 中 Log Compaction 的实现主要是`LogCleaner`和`LogCleanerManager`两
 <figure class="highlight shell"><div class="table-container"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> bin/pulsar-admin topics compact persistent://my-tenant/my-namespace/my-topic <span class="comment"># AdminCli</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> bin/pulsar compact-topic --topic persistent://my-tenant-namespace/my-topic <span class="comment"># 专用工具</span></span></span><br></pre></td></tr></table></div></figure>
 
 
-        <h3 id="实现原理"   >
-          <a href="#实现原理" class="heading-link"><i class="fas fa-link"></i></a><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h3>
+        <h3 id="实现原理-1"   >
+          <a href="#实现原理-1" class="heading-link"><i class="fas fa-link"></i></a><a href="#实现原理-1" class="headerlink" title="实现原理"></a>实现原理</h3>
       <p>实现原理总体可以分为 Compaction 的处理过程和 Consumer 读取 Compacted 数据两个部分。</p>
 
         <h4 id="Compaction-处理"   >
