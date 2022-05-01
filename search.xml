@@ -1810,10 +1810,8 @@
   <entry>
     <title>Kafka 和 Pulsar 的 Compaction 实现</title>
     <url>/2022/05/01/Kafka-%E5%92%8C-Pulsar-%E7%9A%84-Compaction-%E5%AE%9E%E7%8E%B0/</url>
-    <content><![CDATA[<hr>
-<p>本文主要对 Kafka 和 Pulsar 的 Log Compaction 原理进行介绍，并以我的理解进行简单的对比说明。</p>
-<span id="more"></span>
-
+    <content><![CDATA[<p>本文主要对 Kafka 和 Pulsar 的 Log Compaction 原理进行介绍，并以我的理解进行简单的对比说明。</p>
+<p>&lt;– more –&gt;</p>
 <p>在 Kafka 和 Pulsar 中，都具备 Log Campaction（日志挤压）的能力，Compaction 不同于 Log Compression（日志压缩），Compaction 是指将 Topic 历史日志中相同 Key 的消息只保留最新的一条，而 Compression 是指消息维度利用各种压缩算法（如：gzip、lz4、zstd等）减小消息大小但不改变消息内容。Compaction 的使用场景的特点：一是消息有 key，二是相同 key 的消息只关心最新的内容，例如：记录每支股票价格变动的 Topic，股票名称设置为 key，股票价格设置为 value，一般只关心股票的最新价格。在这种场景下，配置 Compaction 可以让 Topic 存储的数据更少，从而在需要全量读取 Topic 内容时速度更快。</p>
 
         <h2 id="Kafka-Log-Compaction"   >
